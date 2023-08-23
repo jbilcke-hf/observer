@@ -95,8 +95,11 @@ export default function Main() {
 
       <div className="fixed z-10 left-0 right-0 bottom-0 flex flex-col items-center justify-center">
         <div className="full md:w-[80%] lg:w-[70%] mb-0 md:p-4 md:mb-8 bg-zinc-100 md:rounded-xl p-4 shadow-2xl text-xs md:text-sm">
-          <p>🅿️ <span className="font-semibold">Informations: </span> This demo uses <a href="https://huggingface.co/HuggingFaceM4/idefics-80b#bias-evaluation" target="_blank">IDEFICS</a>, and is provided for demonstration and research purposes.</p>
-          <p>⛔️ <span className="font-semibold">Limitations: </span> This demo is provided as-is, with no guarantee of factually correct results. In some cases, the model may return hallucinated or innapropriate responses.</p>
+          <p>🅿️ <span className="font-semibold">Informations: </span> This demo uses
+           <a href="https://huggingface.co/HuggingFaceM4/idefics-80b#bias-evaluation" target="_blank" className="font-semibold"> IDEFICS </a>
+           and 
+           <a href="https://huggingface.co/meta-llama" target="_blank" className="font-semibold"> Llama-2 </a>, and is provided for demonstration and research purposes.</p>
+          <p>⛔️ <span className="font-semibold">Limitations: </span> This demo is provided as-is, with no guarantee of factually correct results. In some cases, the models may return hallucinated or innapropriate responses.</p>
         </div>
       </div>
     </div>
