@@ -93,7 +93,7 @@ export default function Main() {
       </div>
 
       <Observe onObserve={handleOnObserve} />
-      <Listen onListen={handleOnListen} />
+      {/*<Listen onListen={handleOnListen} />*/}
       <Speak>{action}</Speak>
 
       <Progress

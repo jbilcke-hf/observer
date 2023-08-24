@@ -42,9 +42,12 @@ export function Listen({
     })
   }, [])
 
+  return null 
+  /*
   return (
     <div className="fixed top-64 left-16 z-10 bg-gray-100 p-4">
       <div>{status}</div>
     </div>
   )
+  */
 }

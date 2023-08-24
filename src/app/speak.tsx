@@ -39,11 +39,6 @@ export function Speak({
   }, [])
 
   useEffect(() => {
-    console.log("DEBUG:", {
-      "voice?.name": voice?.name,
-      newMessage,
-      playedMessage,
-    })
     if (typeof window === "undefined") { return }
     if (!window?.speechSynthesis) { return }
     if (!voice?.name) { return }
@@ -59,7 +54,6 @@ export function Speak({
   }, [voice?.name, newMessage, playedMessage])
   
   return (
-    <div className="fixed top-64 right-16 z-10 bg-gray-100 p-4">
-    </div>
+    null
   )
 }
