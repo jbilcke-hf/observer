@@ -3,10 +3,13 @@
 import { useState, useTransition } from "react"
 import { format } from "date-fns"
 
-import Observer from "./observer"
+import { Observe } from "./observe"
 import { cn } from "@/lib/utils"
+
 import { think } from "./engine/think"
 import { Progress } from "./interface/progress"
+import { Listen } from "./listen"
+import { Speak } from "./speak"
 
 export default function Main() {
   const [_isPending, startTransition] = useTransition()
@@ -18,7 +21,7 @@ export default function Main() {
   const [action, setAction] = useState<string>("Nothing to say yet.")
   
   // receive a new observation from what the agent is looking at
-  const handleObservation = (observation: string, image: string) => {
+  const handleOnObserve = (observation: string, image: string) => {
     setLastRawObservation(observation)
     setLastImage(image)
 
@@ -33,10 +36,10 @@ export default function Main() {
 
     startTransition(async () => {
       setLoadingAction(true)
-      const action = await think({
+      const action =  await think({
         history,
         observation,
-        event: "Please react in a natural way to the current situation: comment on what's happening, ask questions etc.",
+        event: "Please react in a natural way to the current situation, by interacting with the person or entity you are seeing.",
       })
 
       setAction(action)
@@ -44,6 +47,10 @@ export default function Main() {
     })
   }
 
+  const handleOnListen = (recording: string) => {
+    console.log("on listen")
+  }
+  
   return (
     <div className="w-screen h-screen bg-zinc-100">
       
@@ -85,7 +92,9 @@ export default function Main() {
         </div>
       </div>
 
-      <Observer onObserve={handleObservation} />
+      <Observe onObserve={handleOnObserve} />
+      <Listen onListen={handleOnListen} />
+      <Speak>{action}</Speak>
 
       <Progress
         isLoading={isLoadingAction}

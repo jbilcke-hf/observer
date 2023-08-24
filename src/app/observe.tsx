@@ -8,7 +8,7 @@ import AutoSizer from "react-virtualized-auto-sizer"
 import { see } from "./engine/see"
 import { Progress } from "./interface/progress"
 
-export default function Observer({
+export function Observe({
   onObserve,
 }: {
   onObserve: (observation: string, image: string) => void
@@ -111,7 +111,7 @@ export default function Observer({
         className="fixed top-0 left-0 right-0 w-screen"
         screenshotFormat='image/jpeg'
         // screenshotFormat="image/webp"
-        mirrored={true}
+        mirrored={false}
         videoConstraints={{
             width: { min: defaultWidth },
             height: { min: defaultHeight },
