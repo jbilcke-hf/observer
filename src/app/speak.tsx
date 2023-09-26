@@ -3,60 +3,32 @@
 import { ReactNode, useEffect, useState } from "react"
 import { onlyText } from "react-children-utilities"
 
+import { useTimeout } from "@/lib/useTimeout"
+import { useStore } from "./useStore"
+
 export function Speak({
   children
 }: {
   children: ReactNode
 }) {
+  const isSpeechSynthesisAvailable = useStore(state => state.isSpeechSynthesisAvailable)
+  const lastSpokenSentence = useStore(state => state.lastSpokenSentence)
+  const init = useStore(state => state.init)
+  const speak = useStore(state => state.speak)
+
   const newMessage = onlyText(children).trim()
-  const [playedMessage, setPlayedMessage] = useState("")
-  
-  const [voice, setVoice] = useState<SpeechSynthesisVoice>()
 
+  useEffect(() => { init() }, [])
+
+  const canSpeak = isSpeechSynthesisAvailable && newMessage?.length && newMessage !== lastSpokenSentence
+  
   useEffect(() => {
-    console.log("getting voices..")
-    setTimeout(() => {
-      if (typeof window === "undefined") { return }
-      if (!window?.speechSynthesis) { return }
-      const allVoices = window.speechSynthesis.getVoices()
-
-      const enVoices = allVoices.filter(voice => voice.lang.toLowerCase() === "en-us")
-
-      if (!enVoices.length) { return }
-
-      console.log("available voices:")
-      console.table(enVoices)
-
-      const kathyVoice = enVoices.find(voice => voice.name.includes("Kathy"))
-
-      // if we find a high-quality voice
-      const googleVoice = enVoices.find(voice => voice.name.includes("Google"))
+    console.log("debug:", { canSpeak, newMessage })
+    if (canSpeak) {
+      console.log("speaking!")
+      speak(newMessage)
+    }
+  }, [canSpeak, newMessage])
   
-      console.log("google voice:", googleVoice)
-
-      setVoice(googleVoice || kathyVoice)
-    }, 1000)
-  }, [])
-
-  useEffect(() => {
-    if (typeof window === "undefined") { return }
-    if (!window?.speechSynthesis) { return }
-    if (!voice?.name) { return }
-    if (!newMessage?.length) { return }
-    if (newMessage === playedMessage) { return }
-    const synth = window.speechSynthesis
-
-    // console.log(`Speaking "${newMessage}"`)
-    setPlayedMessage(newMessage)
-    const utterance = new SpeechSynthesisUtterance(newMessage)
-    utterance.voice = voice
-
-    console.log("julian: voice disabled :D")
-    // synth.speak(utterance)
-
-  }, [voice?.name, newMessage, playedMessage])
-  
-  return (
-    null
-  )
+  return null
 }

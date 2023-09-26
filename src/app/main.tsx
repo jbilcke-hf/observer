@@ -20,11 +20,13 @@ export default function Main() {
   
   const [action, setAction] = useState<string>("Nothing to say yet.")
   
-  const handleOnEvent = (event: string) => {
+  const handleOnEvent = (event: string, needAnswer: boolean) => {
     setLoadingAction(true)
     startTransition(async () => {
-      const action = await think(event)
-      setAction(action)
+      const action = await think(event, needAnswer)
+      if (action) {
+        setAction(action)
+      }
       setLoadingAction(false)
     })
   }
@@ -32,11 +34,16 @@ export default function Main() {
   const handleOnObserve = (observation: string, image: string) => {
     setLastRawObservation(observation)
     setLastImage(image)
-    handleOnEvent(`It is ${format(new Date(), 'HH:mm (d)')} and you are seeing this: ${observation}`)
+    if (!observation) { return }
+    // handleOnEvent(`It is ${format(new Date(), 'HH:mm')} and you are seeing this: ${observation}`)
+    handleOnEvent(`You are seeing this: ${observation}`, false)
   }
 
   const handleOnListen = (recording: string) => {
-    handleOnEvent(`It is ${format(new Date(), 'HH:mm (d)')} and you are hearing this: ${recording}`)
+    if (!recording || recording === "[BLANK_AUDIO]") { return }
+    // handleOnEvent(`It is ${format(new Date(), 'HH:mm')} and you are hearing this: ${recording}`)
+    handleOnEvent(`${recording}`, true)
+
   }
   
   return (
@@ -94,9 +101,9 @@ export default function Main() {
       <div className="fixed z-10 left-0 right-0 bottom-0 flex flex-col items-center justify-center">
         <div className="full md:w-[80%] lg:w-[70%] mb-0 md:p-4 md:mb-8 bg-zinc-100 md:rounded-xl p-4 shadow-2xl text-xs md:text-sm">
           <p>🅿️ <span className="font-semibold">
-            </span>This multimodal demo allow 
-           <a href="https://huggingface.co/meta-llama" target="_blank" className="font-semibold underline"> Llama-2 </a> to hear, see and talk.
-           You need to upgrade to a <a href="https://caniuse.com/webgpu" target="_blank" className="font-semibold underline">browser with support for WebGPU</a> for speech recognition to work.
+            </span>A multimodal demo to make 
+           <a href="https://huggingface.co/meta-llama" target="_blank" className="font-semibold underline"> Llama-2 </a> hear, see and talk.
+           You need a laptop computer with <a href="https://caniuse.com/webgpu" target="_blank" className="font-semibold underline">a modern browser supporting WebGPU</a>.
             Vision is handled by <a href="https://huggingface.co/HuggingFaceM4/idefics-80b#bias-evaluation" target="_blank" className="font-semibold underline"> IDEFICS </a></p>
           <p>⛔️ <span className="font-semibold">Limitations: </span>This demo is provided as-is, for demonstration and research purpose only. As it demonstrates WebGPU technology, this demo will not support incompatible browsers and/or devices. No guarantee of factually correct results. In some cases, the models may return hallucinated or innapropriate responses.</p>
         </div>

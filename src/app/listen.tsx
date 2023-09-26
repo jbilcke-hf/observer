@@ -9,15 +9,11 @@ import { getWaveBlob } from "webm-to-wav-converter"
 import {
   AvailableModels,
   InferenceSession,
-  MicRecorder,
   SessionManager,
 } from "whisper-turbo"
 
 import { useToast } from "@/components/ui/use-toast"
-// import { listen } from "@/app/engine/listen"
-import { blobToBase64Uri } from "@/lib/blobToBase64Uri"
-
-// import { listen } from "./engine/listen"
+import { useStore } from "./useStore"
 
 export interface TSSegment {
   text: string;
@@ -36,6 +32,13 @@ export function Listen({
   onListen: (recording: string) => void
 }) {
   const { toast } = useToast()
+  const speechSynthesis = useStore(state => state.speechSynthesis)
+  const isSpeaking = useStore(state => state.isSpeaking)
+  const isSpeakingRef = useRef(isSpeaking)
+  useEffect(() => {isSpeakingRef.current = isSpeaking }, [isSpeaking])
+
+  const setHearing = useStore(state => state.setHearing)
+  const isHearing = useStore(state => state.isHearing)
 
   const [transcribing, setTranscribing] = useState(false)
   const transcribingRef = useRef(transcribing)
@@ -59,7 +62,10 @@ export function Listen({
     WHISPER_LARGE: 'whisper-large'
   }
   */
-  const whisperModel: AvailableModels = AvailableModels.WHISPER_BASE
+
+  // unfortunately, we cannot really use models larger than TINY because they are
+  // too slow to process requests
+  const whisperModel: AvailableModels = AvailableModels.WHISPER_TINY
 
   const listenerRef = useRef({
     isListening: false,
@@ -217,67 +223,79 @@ export function Listen({
     runSession()
   }, [audioDataFrame])
 
+  // note: this effect only reacts to "head something" changes
+  // anod not to changes to isListening or isSpekaing
   useEffect(() => {
-    if (heardSomething) {
-      if (!listenerRef.current.isListening) {
-        console.log("recoording..")
-        foregroundListener.startRecording()
-        listenerRef.current.hits = 0
-        listenerRef.current.isListening = true
-          
-        // TODO: use a debouncer to detect when we started speaking
-        setTimeout(async () => {
-          foregroundListener.stopRecording()
-          listenerRef.current.isListening = false
-          listenerRef.current.stoppedListeningAt = Date.now()
-          listenerRef.current.durationInMs =
-            listenerRef.current.stoppedListeningAt - listenerRef.current.startedListeningAt
+    const isListening = listenerRef.current.isListening
 
-          const hits = listenerRef.current.hits
-          
-          console.log(`end of sample (${foregroundListener.timeElapsed}, ${hits} hits)`)
+    if (!heardSomething) { return }
 
-          if (!foregroundListener.audioBlob || typeof window === "undefined" || !window?.FileReader) {
-            return
-          }
-
-          if (hits > 11) {
-            // at 12 threshold level, we should have between 12 and 20 hits (per 2 sec) for short words and utterances
-            // at 12 threshold level, keystrokes should not be detected, unless the person hits the keyboard heavily
-            
-            console.log("got an interesting sample, sending for review")
-
-            // temporary, to prevent infinite loop
-            if (listenerRef.current.debugCanContinue) {
-              // to prevent the infinite loop, set this value to false
-              // listenerRef.current.debugCanContinue = false
-
-              try {
-                const blob = await getWaveBlob(foregroundListener.audioBlob, false) // false = 16 bit, true = 32 bit
-                const arrayBuffer = await blob.arrayBuffer()
-                const uint8Array = new Uint8Array(arrayBuffer)
-
-                setAudioData(uint8Array)
-                setAudioDataFrame(audioDataFrameRef.current + 1)
-              } catch (err) {
-                const error = `failed to convert the audio sample: ${err}`
-                console.error(error)
-                toast({
-                  title: "Error",
-                  description: error,
-                  variant: "destructive"
-                })
-              }
-            } else {
-              console.log("Julian: infinite loop temporary disabled :D")
-            }
-          }
-        }, 3000)
-      } else {
-        // TODO: increase hits?
-        // listenerRef.current.hits = listenerRef.current.hits + 1
-      }
+    if (listenerRef.current.isListening) {
+      // console.log("we are already listening, so skipping..")
+      return
     }
+    if (isSpeakingRef.current) {
+      console.log("we are already busy speaking, so ignoring..")
+      return
+    }
+    setHearing(true)
+    // console.log("recording..")
+    foregroundListener.startRecording()
+    listenerRef.current.hits = 0
+    listenerRef.current.isListening = true
+      
+    setTimeout(async () => {
+      foregroundListener.stopRecording()
+      setHearing(false)
+      listenerRef.current.isListening = false
+      listenerRef.current.stoppedListeningAt = Date.now()
+      listenerRef.current.durationInMs =
+        listenerRef.current.stoppedListeningAt - listenerRef.current.startedListeningAt
+  
+      const hits = listenerRef.current.hits
+  
+      if (!foregroundListener.audioBlob || typeof window === "undefined" || !window?.FileReader) {
+        return
+      }
+
+      if (hits <= 11) {
+        return
+      }
+
+          
+      console.log(`end of sample (${foregroundListener.timeElapsed}, ${hits} hits)`)
+
+      
+      // at 12 threshold level, we should have between 12 and 20 hits (per 2 sec) for short words and utterances
+      // at 12 threshold level, keystrokes should not be detected, unless the person hits the keyboard heavily
+      
+      // console.log("got an interesting sample, sending for review")
+
+      // temporary, to prevent infinite loop
+      if (listenerRef.current.debugCanContinue) {
+        // to prevent the infinite loop, set this value to false
+        // listenerRef.current.debugCanContinue = false
+
+        try {
+          const blob = await getWaveBlob(foregroundListener.audioBlob, false) // false = 16 bit, true = 32 bit
+          const arrayBuffer = await blob.arrayBuffer()
+          const uint8Array = new Uint8Array(arrayBuffer)
+
+          setAudioData(uint8Array)
+          setAudioDataFrame(audioDataFrameRef.current + 1)
+        } catch (err) {
+          const error = `failed to convert the audio sample: ${err}`
+          console.error(error)
+          toast({
+            title: "Error",
+            description: error,
+            variant: "destructive"
+          })
+        }
+      } else {
+        console.log("Julian: infinite loop temporary disabled!")
+      }
+    }, 2000)
   }, [heardSomething])
 
   if (heardSomething && listenerRef.current.isListening) {

@@ -80,11 +80,14 @@ export function Observe({
       }
       const prompt = `What do you see here?`
 
+      console.log("JULIAN: disabled watch")
+
+
       // console.log("Calling IDEFICS..")
-      const newObservation = "fake"  // await see({ prompt, imageBase64 })
+      const newObservation = await see({ prompt, imageBase64 })
 
       // console.log("New observation: ", newObservation)
-      if (newObservation !== lastObservation) {
+      if (newObservation && newObservation !== lastObservation) {
         // console.log("update!")
         setLastObservation(newObservation || "")
         onObserve(newObservation || "", imageBase64)

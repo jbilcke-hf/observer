@@ -17,7 +17,9 @@ export async function predict(inputs: string) {
         do_sample: true,
 
         // hard limit for max_new_tokens is 1512
-        max_new_tokens: 200, // 1150,
+        // however since we are tying to achieve some kind of real time interaction,
+        // we want to make it as small as possible
+        max_new_tokens: 100, // 1150,
         return_full_text: false,
       }
     })) {
@@ -51,6 +53,6 @@ export async function predict(inputs: string) {
     .replaceAll("<SYS>", "")
     .replaceAll("</SYS>", "")
     .replaceAll("<|assistant|>", "")
-    .replaceAll('""', '"')
+    .replaceAll('"', '')
   )
 }
