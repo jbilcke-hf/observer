@@ -10,6 +10,7 @@ import { think } from "./engine/think"
 import { Progress } from "./interface/progress"
 import { Listen } from "./listen"
 import { Speak } from "./speak"
+import { Toaster } from "@/components/ui/toaster"
 
 export default function Main() {
   const [_isPending, startTransition] = useTransition()
@@ -17,38 +18,25 @@ export default function Main() {
   const [lastRawObservation, setLastRawObservation] = useState<string>("")
   const [isLoadingAction, setLoadingAction] = useState(false)
   
-  const [observations, setObservations] = useState<string[]>([])
   const [action, setAction] = useState<string>("Nothing to say yet.")
   
-  // receive a new observation from what the agent is looking at
-  const handleOnObserve = (observation: string, image: string) => {
-    setLastRawObservation(observation)
-    setLastImage(image)
-
-    // last comes first
-    setObservations([
-      `On ${format(new Date(), 'yyyy-MM-dd at HH:mm (d)')}, you saw: \"${observation}\".`
-    ].concat(observations))
-
-    // TODO: use llama-2 to summarize previous observations
-    const history = observations.slice(0, 3).join("\n")
-
-
+  const handleOnEvent = (event: string) => {
+    setLoadingAction(true)
     startTransition(async () => {
-      setLoadingAction(true)
-      const action =  await think({
-        history,
-        observation,
-        event: "Please react in a natural way to the current situation, by interacting with the person or entity you are seeing.",
-      })
-
+      const action = await think(event)
       setAction(action)
       setLoadingAction(false)
     })
   }
+  // receive a new observation from what the agent is looking at
+  const handleOnObserve = (observation: string, image: string) => {
+    setLastRawObservation(observation)
+    setLastImage(image)
+    handleOnEvent(`It is ${format(new Date(), 'HH:mm (d)')} and you are seeing this: ${observation}`)
+  }
 
   const handleOnListen = (recording: string) => {
-    console.log("on listen")
+    handleOnEvent(`It is ${format(new Date(), 'HH:mm (d)')} and you are hearing this: ${recording}`)
   }
   
   return (
@@ -93,8 +81,9 @@ export default function Main() {
       </div>
 
       <Observe onObserve={handleOnObserve} />
-      {/*<Listen onListen={handleOnListen} />*/}
+      <Listen onListen={handleOnListen} />
       <Speak>{action}</Speak>
+      <Toaster />
 
       <Progress
         isLoading={isLoadingAction}
@@ -104,11 +93,12 @@ export default function Main() {
 
       <div className="fixed z-10 left-0 right-0 bottom-0 flex flex-col items-center justify-center">
         <div className="full md:w-[80%] lg:w-[70%] mb-0 md:p-4 md:mb-8 bg-zinc-100 md:rounded-xl p-4 shadow-2xl text-xs md:text-sm">
-          <p>🅿️ <span className="font-semibold">Informations: </span> This demo uses
-           <a href="https://huggingface.co/HuggingFaceM4/idefics-80b#bias-evaluation" target="_blank" className="font-semibold"> IDEFICS </a>
-           and 
-           <a href="https://huggingface.co/meta-llama" target="_blank" className="font-semibold"> Llama-2 </a>, and is provided for demonstration and research purposes.</p>
-          <p>⛔️ <span className="font-semibold">Limitations: </span> This demo is provided as-is, with no guarantee of factually correct results. In some cases, the models may return hallucinated or innapropriate responses.</p>
+          <p>🅿️ <span className="font-semibold">
+            </span>This multimodal demo allow 
+           <a href="https://huggingface.co/meta-llama" target="_blank" className="font-semibold underline"> Llama-2 </a> to hear, see and talk.
+           You need to upgrade to a <a href="https://caniuse.com/webgpu" target="_blank" className="font-semibold underline">browser with support for WebGPU</a> for speech recognition to work.
+            Vision is handled by <a href="https://huggingface.co/HuggingFaceM4/idefics-80b#bias-evaluation" target="_blank" className="font-semibold underline"> IDEFICS </a></p>
+          <p>⛔️ <span className="font-semibold">Limitations: </span>This demo is provided as-is, for demonstration and research purpose only. As it demonstrates WebGPU technology, this demo will not support incompatible browsers and/or devices. No guarantee of factually correct results. In some cases, the models may return hallucinated or innapropriate responses.</p>
         </div>
       </div>
     </div>

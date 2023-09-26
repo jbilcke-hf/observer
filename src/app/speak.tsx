@@ -46,11 +46,14 @@ export function Speak({
     if (newMessage === playedMessage) { return }
     const synth = window.speechSynthesis
 
-    console.log(`Speaking "${newMessage}"`)
+    // console.log(`Speaking "${newMessage}"`)
     setPlayedMessage(newMessage)
     const utterance = new SpeechSynthesisUtterance(newMessage)
     utterance.voice = voice
-    synth.speak(utterance)
+
+    console.log("julian: voice disabled :D")
+    // synth.speak(utterance)
+
   }, [voice?.name, newMessage, playedMessage])
   
   return (

@@ -66,7 +66,7 @@ export function Observe({
 
     setBusy(true)
     
-    console.log("Capturing new frame from webcam..")
+    // console.log("Capturing new frame from webcam..")
 
     startTransition(async () => {
       const imageBase64 = capture()
@@ -80,10 +80,10 @@ export function Observe({
       }
       const prompt = `What do you see here?`
 
-      console.log("Calling IDEFICS..")
-      const newObservation = await see({ prompt, imageBase64 })
+      // console.log("Calling IDEFICS..")
+      const newObservation = "fake"  // await see({ prompt, imageBase64 })
 
-      console.log("New observation: ", newObservation)
+      // console.log("New observation: ", newObservation)
       if (newObservation !== lastObservation) {
         // console.log("update!")
         setLastObservation(newObservation || "")
