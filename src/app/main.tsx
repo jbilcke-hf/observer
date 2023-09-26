@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useRef, useState, useTransition } from "react"
 import { format } from "date-fns"
 
 import { Observe } from "./observe"
@@ -19,15 +19,27 @@ export default function Main() {
   const [isLoadingAction, setLoadingAction] = useState(false)
   
   const [action, setAction] = useState<string>("Nothing to say yet.")
+  const lastEvent = useRef("")
   
   const handleOnEvent = (event: string, needAnswer: boolean) => {
+    lastEvent.current = event
     setLoadingAction(true)
     startTransition(async () => {
-      const action = await think(event, needAnswer)
-      if (action) {
-        setAction(action)
+      try {
+        const action = await think(event, needAnswer)
+
+        // here what could happen is that we received a message more recent than what the LLM is currently working on
+        // when that happen, the best is to just interrupt the LLM (well.. in our case, it means ignore what it says)
+        const canSetAction = action && lastEvent.current === event
+
+        if (canSetAction) {
+          setAction(action)
+        }
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoadingAction(false)
       }
-      setLoadingAction(false)
     })
   }
   // receive a new observation from what the agent is looking at
