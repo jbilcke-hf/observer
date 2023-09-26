@@ -305,7 +305,7 @@ export function Listen({
   return (
     <div className="fixed top-80 left-16 z-10 bg-gray-100 p-4">
       {isLoadingModel && hasLoadedModel 
-        ? <p>Loading: ${progress}%</p>
+        ? <p>Loading whisper-turbo: {progress}% done</p>
         : <p>{
           transcriptBuffer
           || ""
