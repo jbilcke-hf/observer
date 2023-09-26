@@ -36,7 +36,7 @@ export default function Main() {
     setLastImage(image)
     if (!observation) { return }
     // handleOnEvent(`It is ${format(new Date(), 'HH:mm')} and you are seeing this: ${observation}`)
-    handleOnEvent(`You are currently looking at ${observation}`, false)
+    handleOnEvent(`(looking at at ${observation})`, false)
   }
 
   const handleOnListen = (recording: string) => {

@@ -17,7 +17,7 @@ export const think = async (event: string, needAnswer: boolean): Promise<string>
   }
 
   internalHistory.push({
-    role: "user",
+    role: needAnswer ? "user" : "agent",
     content: event,
   })
 
