@@ -46,7 +46,8 @@ export async function see({
     }
 
     const response = (await res.json()) as ImageAnalysisResponse
-    return response.result
+
+    return response.result.replaceAll("The image shows", "")
   } catch (err) {
     console.error(err)
     return ""
