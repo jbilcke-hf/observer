@@ -5,6 +5,9 @@ import { createLlamaPrompt } from "@/lib/createLlamaPrompt"
 
 import { predict } from "./predict"
 
+const context = {
+  lastObservedScene: ""
+}
 
 const internalHistory: {
   role: string;
@@ -16,16 +19,17 @@ export const think = async (event: string, needAnswer: boolean): Promise<string>
     throw new Error("missing event")
   }
 
-  internalHistory.push({
-    role: needAnswer ? "user" : "agent",
-    content: event,
-  })
+  if (needAnswer) {
+    internalHistory.push({
+      role: "user",
+      content: event,
+    })
 
-  if (internalHistory.length > 10) {
-    internalHistory.shift()
-  }
-
-  if (!needAnswer) {
+    if (internalHistory.length > 10) {
+      internalHistory.shift()
+    }
+  } else {
+    context.lastObservedScene = event
     return ""
   }
 
@@ -41,10 +45,10 @@ export const think = async (event: string, needAnswer: boolean): Promise<string>
         `You should be ongoing and open, ask questions, be curious, do jokes etc`,
         `sometimes you have trouble hearing, if you don't understand just ignore and say nothing`,
         `You like to answer in just one sentence`,
+        context.lastObservedScene ? `You are currently talking and interacting with ${context.lastObservedScene}` : '',
       ].filter(item => item).join(". ")
     },
     ...internalHistory,
-
   ])
 
 
