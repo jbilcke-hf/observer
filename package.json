@@ -3,12 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "npm run deepgram; next dev",
+    "deepgram": "node deepgram.js",
     "build": "next build",
-    "start": "next start",
+    "start": "npm run deepgram; next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@deepgram/sdk": "^2.4.0",
     "@huggingface/inference": "^2.6.1",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-avatar": "^1.0.3",
@@ -38,6 +40,7 @@
     "cmdk": "^0.2.0",
     "cookies-next": "^2.1.2",
     "date-fns": "^2.30.0",
+    "dotenv": "^16.3.1",
     "eslint": "8.45.0",
     "eslint-config-next": "13.4.10",
     "lucide-react": "^0.260.0",
