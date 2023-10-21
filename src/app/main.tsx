@@ -8,7 +8,8 @@ import { cn } from "@/lib/utils"
 
 import { think } from "./engine/think"
 import { Progress } from "./interface/progress"
-import { Listen } from "./listen"
+import { Listen as ListenWhisper } from "./listenWhisper"
+import { Listen as ListenDeepgram } from "./listenDeepgram"
 import { Speak } from "./speak"
 import { Toaster } from "@/components/ui/toaster"
 
@@ -31,10 +32,16 @@ export default function Main() {
         // here what could happen is that we received a message more recent than what the LLM is currently working on
         // when that happen, the best is to just interrupt the LLM (well.. in our case, it means ignore what it says)
         const canSetAction = action && lastEvent.current === event
+        console.log("debug:", {
+          action,
+          event,
+          needAnswer,
+          canSetAction
+        })
 
-        if (canSetAction) {
+        // if (canSetAction) {
           setAction(action)
-        }
+        // }
       } catch (err) {
         console.error(err)
       } finally {
@@ -54,6 +61,7 @@ export default function Main() {
   const handleOnListen = (recording: string) => {
     if (!recording || recording === "[BLANK_AUDIO]") { return }
     // handleOnEvent(`It is ${format(new Date(), 'HH:mm')} and you are hearing this: ${recording}`)
+    console.log("handleOnListe:", recording)
     handleOnEvent(`${recording}`, true)
 
   }
@@ -100,7 +108,7 @@ export default function Main() {
       </div>
 
       <Observe onObserve={handleOnObserve} />
-      <Listen onListen={handleOnListen} />
+      <ListenDeepgram onListen={handleOnListen} />
       <Speak>{action}</Speak>
       <Toaster />
 

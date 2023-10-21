@@ -11,6 +11,8 @@ export async function see({
   prompt: string
   imageBase64: string
 }): Promise<string> {
+  return ""
+  
   if (!prompt) {
     console.error(`cannot call the API without an image, aborting..`)
     throw new Error(`cannot call the API without an image, aborting..`)

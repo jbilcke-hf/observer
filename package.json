@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "npm run deepgram; next dev",
+    "dev": "next dev",
     "deepgram": "node deepgram.js",
     "build": "next build",
     "start": "npm run deepgram; next start",

@@ -5,7 +5,7 @@ require('dotenv').config({
 // Add Deepgram so you can get the transcription
 const { Deepgram } = require('@deepgram/sdk')
 
-if (!process.env.STT_ENGINE !== "DEEPGRAM") {
+if (process.env.STT_ENGINE !== "DEEPGRAM") {
   console.log("Deepgram is not enabled, skipping..")
   process.exit()
 }
