@@ -65,7 +65,7 @@
     "usehooks-ts": "^2.9.1",
     "uuid": "^9.0.0",
     "webm-to-wav-converter": "^1.1.0",
-    "whisper-turbo": "github:jbilcke-hf/whisper-turbo-hack",
+    "whisper-turbo": "0.8.0",
     "zustand": "^4.4.1"
   },
   "devDependencies": {

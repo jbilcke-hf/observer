@@ -65,7 +65,7 @@ export function Listen({
 
   // unfortunately, we cannot really use models larger than TINY because they are
   // too slow to process requests
-  const whisperModel: AvailableModels = AvailableModels.WHISPER_TINY
+  const whisperModel: AvailableModels = AvailableModels.WHISPER_BASE
 
   const listenerRef = useRef({
     isListening: false,

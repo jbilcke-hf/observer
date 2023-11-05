@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { think } from "./engine/think"
 import { Progress } from "./interface/progress"
 import { Listen as ListenWhisper } from "./listenWhisper"
-import { Listen as ListenDeepgram } from "./listenDeepgram"
+// import { Listen as ListenDeepgram } from "./listenDeepgram"
 import { Speak } from "./speak"
 import { Toaster } from "@/components/ui/toaster"
 
@@ -108,7 +108,8 @@ export default function Main() {
       </div>
 
       <Observe onObserve={handleOnObserve} />
-      <ListenDeepgram onListen={handleOnListen} />
+      {/*<ListenDeepgram onListen={handleOnListen} />*/}
+      <ListenWhisper onListen={handleOnListen} />
       <Speak>{action}</Speak>
       <Toaster />
 
